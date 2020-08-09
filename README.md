@@ -26,23 +26,58 @@ For how to write these files, please refer to: https://github.com/casbin/casbin#
 
    ```go
    c := new(authz.CasbinAuthorizer)
-   	err :=c.Load("authz_model.conf", "authz_policy.csv")
-   	if err != nil {
-   		fmt.Println(err.Error())
-   	}
+   err :=c.Load("authz_model.conf", "authz_policy.csv")
+   if err != nil {
+   	fmt.Println(err.Error())
+   }
    ```
 
 3. Use Middleware
 
    ```go
    r :=mux.NewRouter()
-   	r.HandleFunc("/{url:[A-Za-z0-9\\/]+}", handler)
-   	r.Use(c.Middleware)
+   r.HandleFunc("/{url:[A-Za-z0-9\\/]+}", handler)
+   r.Use(c.Middleware)
    ```
 
    Note: Now we only support check the whole path. So we recommend using path with regular expressions in the HandleFunc(). In this way, you don't have to worry about 404 due to the number of ‘/‘.For example `/book1/1` and `/bookshelf1/book1/1`.
 
 If you have any questions, you can refer to [mux-authz_test.go](https://github.com/casbin/mux-authz/blob/master/mux-authz_test.go).
+
+## Complete Example.
+
+```go
+package main
+
+import (
+	"fmt"
+	authz "github.com/casbin/mux-authz"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
+)
+
+func main() {
+	c := new(authz.CasbinAuthorizer)
+	err :=c.Load("authz_model.conf", "authz_policy.csv")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	// A very simple health check handler.
+	handler := http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	r :=mux.NewRouter()
+	r.HandleFunc("/{url:[A-Za-z0-9\\/]+}", handler)
+	r.Use(c.Middleware)
+	log.Fatal(http.ListenAndServe(":8080",r))
+}
+```
+
+Note: This plugin only supports HTTP basic authentication to get the logged-in user name, if you use other kinds of authentication like OAuth, LDAP, etc, you may need to customize this plugin.
 
 ## How to control the access
 
