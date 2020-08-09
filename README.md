@@ -1,4 +1,4 @@
-# Mux-authz [![Build Status](https://travis-ci.org/00LT00/mux-authz.svg?branch=master)](https://travis-ci.org/00LT00/mux-authz)
+# Mux-authz [![Build Status](https://travis-ci.org/00LT00/mux-authz.svg?branch=master)](https://travis-ci.org/00LT00/mux-authz) [![Coverage Status](https://coveralls.io/repos/github/00LT00/mux-authz/badge.svg?branch=master)](https://coveralls.io/github/00LT00/mux-authz?branch=master)
 
 Mux-authz is an authorization middleware for [Mux](https://github.com/gorilla/mux), it’s based on [Casbin](https://github.com/casbin/casbin). If you have better suggestions, please submit the issue.
 
