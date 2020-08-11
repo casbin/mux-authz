@@ -6,17 +6,22 @@ import (
 )
 
 type CasbinAuthorizer struct {
-	Enforcer 	*casbin.Enforcer
+	Enforcer *casbin.Enforcer
 }
 
+func (c *CasbinAuthorizer) Load(params ...interface{}) error {
+	var err error
+	c.Enforcer, err = casbin.NewEnforcer(params...)
+	return err
+}
 
-func(c *CasbinAuthorizer)Middleware(next http.Handler) http.Handler{
+func (c *CasbinAuthorizer) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check Permission with casbin
-		allowed,err := c.CheckPermission(r)
+		allowed, err := c.CheckPermission(r)
 		if err != nil {
 			// Casbin.Enforcer not working normal
-			http.Error(w,err.Error(),http.StatusBadGateway)
+			http.Error(w, err.Error(), http.StatusBadGateway)
 			return
 		}
 		if !allowed {
@@ -28,7 +33,6 @@ func(c *CasbinAuthorizer)Middleware(next http.Handler) http.Handler{
 		next.ServeHTTP(w, r)
 	})
 }
-
 
 // GetUserName gets the user name from the request.
 // Currently, only HTTP basic authentication is supported
@@ -45,5 +49,3 @@ func (c *CasbinAuthorizer) CheckPermission(r *http.Request) (bool, error) {
 	path := r.URL.Path
 	return c.Enforcer.Enforce(user, path, method)
 }
-
-
